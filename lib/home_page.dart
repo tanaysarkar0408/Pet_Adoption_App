@@ -1,4 +1,5 @@
 //todo lastAttempt
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +8,6 @@ import 'package:pet_app_bloc/details_page.dart';
 import 'package:pet_app_bloc/history_page.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -33,52 +33,65 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                  //   SizedBox(
-                  //   width: double.infinity,
-                  //   child: CarouselSlider.builder(
-                  //     itemCount: snapshot.data!.length,
-                  //     options: CarouselOptions(
-                  //       height: 300,
-                  //       autoPlay: true,
-                  //       viewportFraction: 0.55,
-                  //       enlargeCenterPage: true,
-                  //       pageSnapping: true,
-                  //       autoPlayCurve: Curves.fastOutSlowIn,
-                  //       autoPlayAnimationDuration: const Duration(seconds: 1),
-                  //     ),
-                  //     itemBuilder: (context, itemIndex, pageViewIndex) {
-                  //       return GestureDetector(
-                  //         onTap: () {
-                  //           Navigator.push(
-                  //             context,
-                  //             MaterialPageRoute(
-                  //               builder: (context) => DetailsScreen(
-                  //                 movie: snapshot.data[itemIndex],
-                  //               ),
-                  //             ),
-                  //           );
-                  //         },
-                  //         child: ClipRRect(
-                  //           borderRadius: BorderRadius.circular(12),
-                  //           child: SizedBox(
-                  //             height: 300,
-                  //             width: 200,
-                  //             child: Image.network(
-                  //               filterQuality: FilterQuality.high,
-                  //               fit: BoxFit.cover,
-                  //               '${Constants.imagePath}${snapshot.data[itemIndex].posterPath}',
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
-                  // ),
-
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('MOST POPULAR PETS',
+                            style: GoogleFonts.aclonica(
+                                color: Colors.blue[200],
+                                fontSize: 24
+                            ),),
+                          const SizedBox(height: 20),
+                          const Icon(Icons.arrow_downward),
+                        ],
+                      ),
+                      Expanded(
+                        child: BlocBuilder<PetBloc, PetState>(
+                          builder: (context, state) {
+                            if (state is PetsLoadedState) {
+                              return CarouselSlider.builder(
+                                itemCount: state.pets.where((pet) => pet.category == 'Dog').length,
+                                itemBuilder: (context, int index,
+                                    int realIndex) {
+                                  final dog =  state.pets.where((pet) => pet.category == 'Dog').toList()[index];
+                                  return GestureDetector(
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(pet: dog)));
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        height: 100,
+                                        width: 200,
+                                        child: Image.asset(dog.imageAssetPath),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                options: CarouselOptions(
+                                  height: 300,
+                                  autoPlay: true,
+                                  viewportFraction: 0.55,
+                                  enlargeCenterPage: true,
+                                  pageSnapping: true,
+                                  autoPlayCurve: Curves.fastOutSlowIn,
+                                  autoPlayAnimationDuration: const Duration(milliseconds: 2000),
+                                ),
+                              );
+                            } else {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(25),
                             color: Colors.grey[900],
@@ -111,12 +124,14 @@ class _HomePageState extends State<HomePage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16.0, vertical: 8.0),
                                     child: Card(
-                                      surfaceTintColor: Colors.greenAccent,
+                                      surfaceTintColor: Colors.blue,
                                       shadowColor: Colors.black,
                                       color: Colors.grey[900],
                                       elevation: 5.0,
                                       child: ListTile(
-                                        trailing: Text(pet.isAdopted? 'Already Adopted' : 'Adopt'),
+                                        trailing: Text(pet.isAdopted
+                                            ? 'Already Adopted'
+                                            : 'Adopt'),
                                         leading: Hero(
                                           tag: 'hero-tag-${pet.id}',
                                           child: CircleAvatar(
@@ -143,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                               );
                             } else {
-                              return Center(
+                              return const Center(
                                 child: CircularProgressIndicator(),
                               );
                             }
