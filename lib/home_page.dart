@@ -33,61 +33,6 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('MOST POPULAR PETS',
-                            style: GoogleFonts.aclonica(
-                                color: Colors.blue[200],
-                                fontSize: 24
-                            ),),
-                          const SizedBox(height: 20),
-                          const Icon(Icons.arrow_downward),
-                        ],
-                      ),
-                      Expanded(
-                        child: BlocBuilder<PetBloc, PetState>(
-                          builder: (context, state) {
-                            if (state is PetsLoadedState) {
-                              return CarouselSlider.builder(
-                                itemCount: state.pets.where((pet) => pet.category == 'Dog').length,
-                                itemBuilder: (context, int index,
-                                    int realIndex) {
-                                  final dog =  state.pets.where((pet) => pet.category == 'Dog').toList()[index];
-                                  return GestureDetector(
-                                    onTap: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(pet: dog)));
-                                    },
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: SizedBox(
-                                        height: 100,
-                                        width: 200,
-                                        child: Image.asset(dog.imageAssetPath),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                options: CarouselOptions(
-                                  height: 300,
-                                  autoPlay: true,
-                                  viewportFraction: 0.55,
-                                  enlargeCenterPage: true,
-                                  pageSnapping: true,
-                                  autoPlayCurve: Curves.fastOutSlowIn,
-                                  autoPlayAnimationDuration: const Duration(milliseconds: 2000),
-                                ),
-                              );
-                            } else {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                      ),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
@@ -110,6 +55,86 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('AT A GLANCE',
+                            style: GoogleFonts.aclonica(
+                                color: Colors.blue[200],
+                                fontSize: 24
+                            ),),
+                          const SizedBox(height: 20),
+                          const Icon(Icons.arrow_downward),
+                        ],
+                      ),
+                      Expanded(
+                        child: BlocBuilder<PetBloc, PetState>(
+                          builder: (context, state) {
+                            if (state is PetsLoadedState) {
+                              final pets = state.pets.where((pet) =>
+                              pet.name.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                  pet.category.toLowerCase().contains(_searchController.text.toLowerCase())
+                              ).toList();
+
+                              if (pets.isNotEmpty) {
+                                return CarouselSlider.builder(
+                                  itemCount: pets.length,
+                                  itemBuilder: (context, int index, int realIndex) {
+                                    final pet = pets[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => DetailsPage(pet: pet)),
+                                        );
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: SizedBox(
+                                          height: 100,
+                                          width: 200,
+                                          child: Image.asset(pet.imageAssetPath),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  options: CarouselOptions(
+                                    height: 300,
+                                    autoPlay: true,
+                                    viewportFraction: 0.55,
+                                    enlargeCenterPage: true,
+                                    pageSnapping: true,
+                                    autoPlayCurve: Curves.fastOutSlowIn,
+                                    autoPlayAnimationDuration: const Duration(milliseconds: 2000),
+                                  ),
+                                );
+                              } else {
+                                return Center(
+                                  child: Text('No pets found.'),
+                                );
+                              }
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('All Pets',
+                            style: GoogleFonts.aclonica(
+                                color: Colors.blue[200],
+                                fontSize: 24
+                            ),),
+                          const SizedBox(height: 20),
+                          const Icon(Icons.arrow_downward),
+                        ],
                       ),
                       Expanded(
                         child: BlocBuilder<PetBloc, PetState>(
